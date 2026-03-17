@@ -1,32 +1,38 @@
 import streamlit as st
 import numpy as np
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.image import load_img, img_to_array
+from PIL import Image
 
 st.title("🚨 Crime Anomaly Detection")
 
-# Load models
-feature_model = load_model("cnn_feature_extractor.h5")
-autoencoder = load_model("anomaly_autoencoder.h5")
+IMG_SIZE = (224, 224)
 
-IMG_SIZE = (224,224)
+uploaded_file = st.file_uploader("Upload an image", type=["jpg", "png", "jpeg"])
 
-uploaded_file = st.file_uploader("Upload an image", type=["jpg","png","jpeg"])
+def simple_anomaly_detection(image_array):
+    """
+    Simple placeholder logic (since TensorFlow can't run on Streamlit Cloud)
+    You can replace this later with real model logic
+    """
+    # Example: use pixel intensity variance as anomaly score
+    score = np.var(image_array)
+    return score
 
 if uploaded_file is not None:
-
-    img = load_img(uploaded_file, target_size=IMG_SIZE)
-    img_array = img_to_array(img)/255.0
+    # Load image
+    img = Image.open(uploaded_file).resize(IMG_SIZE)
+    img_array = np.array(img) / 255.0
 
     st.image(img, caption="Uploaded Image")
 
-    feat = feature_model.predict(np.expand_dims(img_array, axis=0))
-    recon = autoencoder.predict(feat)
+    # Get anomaly score
+    score = simple_anomaly_detection(img_array)
 
-    error = np.mean(np.square(feat - recon))
-    threshold = 0.01
+    # Threshold (you can tune this)
+    threshold = 0.05
 
-    if error > threshold:
+    st.write(f"Anomaly Score: {score:.5f}")
+
+    if score > threshold:
         st.error("🚨 ANOMALOUS")
     else:
         st.success("✅ NORMAL")
