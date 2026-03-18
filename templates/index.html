@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Crime Detection</title>
+</head>
+<body>
+
+<h1>🚨 Crime Anomaly Detection</h1>
+
+<form method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" required>
+    <button type="submit">Upload</button>
+</form>
+
+{% if result %}
+    <h2>{{ result }}</h2>
+    <p>Confidence: {{ confidence }}%</p>
+{% endif %}
+
+</body>
+</html>

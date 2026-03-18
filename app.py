@@ -1,38 +1,33 @@
-import streamlit as st
+from flask import Flask, render_template, request
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
 import numpy as np
-from PIL import Image
 
-st.title("🚨 Crime Anomaly Detection")
+app = Flask(__name__)
 
 IMG_SIZE = (224, 224)
 
-uploaded_file = st.file_uploader("Upload an image", type=["jpg", "png", "jpeg"])
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    result = None
+    confidence = None
 
-def simple_anomaly_detection(image_array):
-    """
-    Simple placeholder logic (since TensorFlow can't run on Streamlit Cloud)
-    You can replace this later with real model logic
-    """
-    # Example: use pixel intensity variance as anomaly score
-    score = np.var(image_array)
-    return score
+    if request.method == 'POST':
+        file = request.files['file']
 
-if uploaded_file is not None:
-    # Load image
-    img = Image.open(uploaded_file).resize(IMG_SIZE)
-    img_array = np.array(img) / 255.0
+        if file:
+            # ✅ FIXED (correct indentation)
+            file_path = "temp.jpg"
+            file.save(file_path)
 
-    st.image(img, caption="Uploaded Image")
+            img = load_img(file_path, target_size=IMG_SIZE)
+            img = img_to_array(img) / 255.0
+            img = np.expand_dims(img, axis=0)
 
-    # Get anomaly score
-    score = simple_anomaly_detection(img_array)
+            # 🔥 Dummy prediction (replace later)
+            result = "🚨 ANOMALOUS"
+            confidence = 87.5
 
-    # Threshold (you can tune this)
-    threshold = 0.05
+    return render_template('index.html', result=result, confidence=confidence)
 
-    st.write(f"Anomaly Score: {score:.5f}")
-
-    if score > threshold:
-        st.error("🚨 ANOMALOUS")
-    else:
-        st.success("✅ NORMAL")
+if __name__ == "__main__":
+    app.run(debug=False)
